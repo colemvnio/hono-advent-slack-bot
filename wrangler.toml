@@ -13,3 +13,6 @@ vars = { AOC_SESSION_TOKEN = "<local_session_token>", AOC_LEADERBOARD_ID = "<loc
 
 [triggers]
 crons = ["0 12 * * *"] # Daily trigger
+
+[observability.logs]
+enabled = true

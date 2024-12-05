@@ -3,6 +3,7 @@ import { Leaderboard } from './leaderboard.interface'
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
 
+
 app.get('/', (c) => {
   return c.text('Hello from Advent Bot!')
 })
@@ -16,9 +17,9 @@ app.get('leaderboard/summary', async (c) => {
     const leaderboard = await getLeaderboardById(c.env.AOC_LEADERBOARD_ID, c.env.AOC_SESSION_TOKEN);
     const header = formatLeaderboard(leaderboard);
     await pushToSlack(header, c.env.SLACK_WEBHOOK_URL);
-
     return c.text(header);
   } catch (e) {
+    console.error('Error:', e);
     return c.text((e as Error).message);
   }
 })
@@ -88,4 +89,20 @@ async function pushToSlack(message: string, webhookUrl: string): Promise<void> {
   }
 }
 
-export default app
+export default {
+  async scheduled(event: ScheduledEvent, env: CloudflareBindings, ctx: ExecutionContext) {
+    console.log("Executing scheduled event for leaderboard summary...");
+
+    try {
+      const leaderboard = await getLeaderboardById(env.AOC_LEADERBOARD_ID, env.AOC_SESSION_TOKEN);
+      const header = formatLeaderboard(leaderboard);
+      await pushToSlack(header, env.SLACK_WEBHOOK_URL);
+
+      console.log('Scheduled leaderboard summary posted successfully');
+    } catch (error) {
+      console.error('Error during scheduled event:', (error as Error).message);
+    }
+  },
+  
+  fetch: app.fetch,
+}

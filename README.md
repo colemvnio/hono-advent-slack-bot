@@ -2,8 +2,8 @@
 Happy Coding! 🎅
 ## ✨ Features
 
-- 📊 Daily leaderboard updates
-- 🔔 Automatic notifications for completed challenges
+- 📊 Daily leaderboard updates: Deployed
+- 🔔 Automatic notifications for completed challenges: In progress
 
 ## 🚀 Getting Started
 
