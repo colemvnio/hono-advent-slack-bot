@@ -1,28 +1,4 @@
-import { Hono } from 'hono'
 import { Leaderboard } from './leaderboard.interface'
-
-const app = new Hono<{ Bindings: CloudflareBindings }>()
-
-
-app.get('/', (c) => {
-  return c.text('Hello from Advent Bot!')
-})
-
-app.get('/health', (c) => {
-  return c.text('OK')
-})
-
-app.get('leaderboard/summary', async (c) => {
-  try {
-    const leaderboard = await getLeaderboardById(c.env.AOC_LEADERBOARD_ID, c.env.AOC_SESSION_TOKEN);
-    const header = formatLeaderboard(leaderboard);
-    await pushToSlack(header, c.env.SLACK_WEBHOOK_URL);
-    return c.text(header);
-  } catch (e) {
-    console.error('Error:', e);
-    return c.text((e as Error).message);
-  }
-})
 
 async function getLeaderboardById(leaderboardId: string, sessionToken: string): Promise<Leaderboard> {
   const currentYear = new Date().getFullYear();
@@ -102,7 +78,5 @@ export default {
     } catch (error) {
       console.error('Error during scheduled event:', (error as Error).message);
     }
-  },
-  
-  fetch: app.fetch,
+  }
 }
