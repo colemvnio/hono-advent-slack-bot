@@ -11,6 +11,8 @@ app.get('leaderboard/summary', async (c) => {
   try {
     const leaderboard = await getLeaderboardById(c.env.AOC_LEADERBOARD_ID, c.env.AOC_SESSION_TOKEN);
     const header = formatLeaderboard(leaderboard);
+    await pushToSlack(header, c.env.SLACK_WEBHOOK_URL);
+
     return c.text(header);
   } catch (e) {
     console.error(e);
@@ -37,26 +39,50 @@ async function getLeaderboardById(leaderboardId: string, sessionToken: string): 
 
 function formatLeaderboard(leaderboard: Leaderboard): string {
   const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  const header = `*Daily Leaderboard Summary - ${currentDate}*\n`;
+  const arrMotivation = [
+    'Happy Coding! 🎅',
+    'May your code be bug-free! 🎄',
+    'Debugging is just like unwrapping presents! 🎁',
+    'Keep calm and code on! ⌨️',
+    'You\'re making great progress! 🚀',
+    'Every line of code is a step forward! 👣',
+    'Embrace the challenge, you\'ve got this! 💪',
+    'Your dedication is inspiring! ✨',
+    'Code like nobody\'s watching! 👀',
+    'You\'re a coding superstar! 🌟'
+  ];
+
+  let header = `*Daily Leaderboard Summary - ${currentDate}*\n\n`;
+  const randomSentence = arrMotivation[Math.floor(Math.random() * arrMotivation.length)];
+  header += `> _${randomSentence}_\n\n`;
   const sortedMembers = Object.values(leaderboard.members)
     .sort((a, b) => b.local_score - a.local_score);
 
-  const maxScore = sortedMembers[0].local_score;
-  const nameMaxLength = Math.max(...Object.values(leaderboard.members).map(member => member.name.length)) + 1;
-
-  return sortedMembers.reduce((acc, member, index) => {
+  header += sortedMembers.reduce((acc, member, index) => {
     const position = index + 1;
-    const progress = Math.round((member.local_score / maxScore) * 10);
-    const bar = '█'.repeat(progress) + '░'.repeat(10 - progress);
-
-    // Top 3 leaders get themed emojis
     const emoji = index < 3 ? ['🎅', '🎄', '🎁'][index] : '🧝';
-    const paddedName = member.name.length > nameMaxLength ? 
-      `${member.name.slice(0, nameMaxLength - 3)}...` : 
-      member.name.padEnd(nameMaxLength);
+    const name = index < 3 ? `*${member.name}*` : member.name;
+    return acc + `${position.toString().padStart(2)}. ${emoji} ${name} ${member.local_score} (${member.stars})\n`;
+  }, '');
 
-    return acc + `${position.toString().padStart(2)}. ${emoji} ${paddedName} ${bar} ${member.local_score} (${member.stars})\n`;
-  }, header);
+  const closure = "Sent from Santa's sleigh! 🎅";
+  header += `\n\n_${closure}_`;
+
+  return header;
+}
+
+async function pushToSlack(message: string, webhookUrl: string): Promise<void> {
+  const response = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text: message }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to push to Slack: ${response.statusText}`);
+  }
 }
 
 export default app
