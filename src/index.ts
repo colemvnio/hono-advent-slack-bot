@@ -3,6 +3,10 @@ import { Leaderboard } from './leaderboard.interface'
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
 
+app.get('/', (c) => {
+  return c.text('Hello from Advent Bot!')
+})
+
 app.get('/health', (c) => {
   return c.text('OK')
 })
@@ -15,7 +19,6 @@ app.get('leaderboard/summary', async (c) => {
 
     return c.text(header);
   } catch (e) {
-    console.error(e);
     return c.text((e as Error).message);
   }
 })

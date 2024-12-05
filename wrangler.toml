@@ -10,3 +10,6 @@ vars = { AOC_SESSION_TOKEN = "<your_session_token_placeholder>", AOC_LEADERBOARD
 
 [env.dev]
 vars = { AOC_SESSION_TOKEN = "<local_session_token>", AOC_LEADERBOARD_ID = "<local_leaderboard_id>", SLACK_WEBHOOK_URL = "<local_slack_webhook>" }
+
+[triggers]
+crons = ["0 12 * * *"] # Daily trigger
