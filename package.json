@@ -2,6 +2,7 @@
   "name": "slack-advent-bot",
   "scripts": {
     "dev": "wrangler dev --env dev",
+    "dev-cron": "npx wrangler dev --test-scheduled --env dev",
     "deploy": "wrangler deploy --minify",
     "deploy-prod": "wrangler deploy --env production --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
