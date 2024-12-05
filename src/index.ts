@@ -1,12 +1,6 @@
 import { LeaderboardService } from './leaderboard.service';
 import { NotificationService } from './notification.service';
 
-export interface CloudflareBindings {
-  AOC_SESSION_TOKEN: string;
-  AOC_LEADERBOARD_ID: string;
-  SLACK_WEBHOOK_URL: string;
-}
-
 async function pushToSlack(message: string, webhookUrl: string): Promise<void> {
   const response = await fetch(webhookUrl, {
     method: 'POST',
@@ -36,8 +30,7 @@ export default {
             env.AOC_SESSION_TOKEN
           );
           const formattedLeaderboard = await leaderboardService.getAndFormatLeaderboard();
-          console.log(formattedLeaderboard);
-          // await notificationService.pushToSlack(formattedLeaderboard);
+          await notificationService.pushToSlack(formattedLeaderboard);
 
           break;
 
