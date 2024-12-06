@@ -37,7 +37,7 @@ export class LeaderboardService {
     const completions = await this.getCompletions(leaderboard);
 
     if (completions.length > 0) {
-      const formattedCompletions = this.formatChallenge(completions)
+      const formattedCompletions = this.formatChallenge(leaderboard, completions)
       await this.notificationService.pushToSlack(formattedCompletions);
     }
 
@@ -116,8 +116,8 @@ export class LeaderboardService {
     return header;
   }
 
-  private formatChallenge(newCompletions: { name: string; completedChallenges: number; first: boolean }[]): string {
-    let header = `*New Advent of Code Completions - ${this.getDateString()}*\n\n`;
+  private formatChallenge(leaderboard: Leaderboard, newCompletions: { name: string; completedChallenges: number; first: boolean }[]): string {
+    let header = `*New Advent of Code Completions - ${this.getTimeString()}*\n\n`;
     header = this.addMotivation(header);
 
     const sortedMembers = newCompletions.sort((a, b) => {
@@ -137,9 +137,14 @@ export class LeaderboardService {
         acc +
         (member.first
           ? `${position.toString().padStart(2)}. ${emoji} *${name}* joined and started their Advent of Code journey! 🎄🎉\n`
-          : `${position.toString().padStart(2)}. ${emoji} ${name} completed ${completed} challenge${completed > 1 ? 's' : ''}!\n`)
+          : `${position.toString().padStart(2)}. ${emoji} ${name} just completed ${completed} challenge${completed > 1 ? 's' : ''}!\n`)
       );
     }, "");
+
+    const randomMember = this.getRandomMember(leaderboard, newCompletions.map(member => member.name));
+    const challenge = randomMember ? `Will ${randomMember} be the next to complete a challenge? 🤔` : "Who's next? 🎄";
+
+    header += `\n_${challenge}_`;
 
     const closure = "Sent from Santa's sleigh! 🎅";
     header += `\n\n_${closure}_`;
@@ -149,12 +154,29 @@ export class LeaderboardService {
 
   // region UTILS
   private getDateString(): string {
-    return new Date().toLocaleDateString("en-US", {
+    return new Date().toLocaleString("en-US", {
+      timeZone: "America/Montreal",
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     });
+  }
+
+  private getTimeString(): string {
+    return new Date().toLocaleString("en-US", {
+      timeZone: "America/Montreal",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+  }
+
+  private getRandomMember(leaderboard: Leaderboard, excludedMembers: string[]): string | null {
+    const members = Object.values(leaderboard.members).filter(member => !excludedMembers.includes(member.name));
+    if (members.length === 0) return null;
+
+    return members[Math.floor(Math.random() * members.length)].name;
   }
 
   private addMotivation(header: string): string {
