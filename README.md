@@ -1,9 +1,9 @@
-# 🎄 Advent of Code Slack Bot
-Happy Coding! 🎅
+![Advent of Code Slack Banner](assets/banner.png)
+
 ## ✨ Features
 
 - 📊 Daily leaderboard updates: Deployed
-- 🔔 Automatic notifications for completed challenges: In progress
+- 🔔 Automatic notifications for completed challenges: Deployed
 
 ## 🚀 Getting Started
 
