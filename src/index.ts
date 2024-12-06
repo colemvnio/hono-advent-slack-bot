@@ -1,6 +1,6 @@
+import { KVNamespace } from '@cloudflare/workers-types';
 import { LeaderboardService } from './leaderboard.service';
 import { NotificationService } from './notification.service';
-import { KVNamespace } from '@cloudflare/workers-types';
 
 export interface Env {
   AOC_SESSION_TOKEN: string;
@@ -30,11 +30,11 @@ export default {
       );
 
       switch (event.cron) {
-        case "0 12 * * *":
+        case '0 12 * * *':
           await leaderboardService.checkDailySummary();
           break;
 
-        case "*/15 * * * *":
+        case '*/15 * * * *':
           await leaderboardService.checkForNewCompletions();
           break;
 
@@ -44,5 +44,5 @@ export default {
     } catch (error) {
       console.error('Error during scheduled event:', (error as Error).message);
     }
-  }
-}
+  },
+};

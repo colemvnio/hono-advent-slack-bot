@@ -1,0 +1,5 @@
+# Commits to ignore in git blame
+# Format: one commit hash per line
+# Add commit hashes below this line
+12bd76d68f8b3d4230ddebaaa13793ce1b983ebb
+583c9535c4fc9005661c4437b07acbf22c02c37c

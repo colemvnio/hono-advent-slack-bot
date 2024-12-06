@@ -1,17 +1,17 @@
-import { Leaderboard } from "./leaderboard.interface";
-import { KVNamespace } from "@cloudflare/workers-types";
-import { NotificationService } from "./notification.service";
+import { KVNamespace } from '@cloudflare/workers-types';
+import { Leaderboard } from './leaderboard.interface';
+import { NotificationService } from './notification.service';
 
 export class LeaderboardService {
   private readonly arrMotivation = [
-    "Happy Coding! 🎅",
-    "May your code be bug-free! 🎄",
-    "Debugging is just like unwrapping presents! 🎁",
-    "Keep calm and code on! ⌨️",
+    'Happy Coding! 🎅',
+    'May your code be bug-free! 🎄',
+    'Debugging is just like unwrapping presents! 🎁',
+    'Keep calm and code on! ⌨️',
     "You're making great progress! 🚀",
-    "Every line of code is a step forward! 👣",
+    'Every line of code is a step forward! 👣',
     "Embrace the challenge, you've got this! 💪",
-    "Your dedication is inspiring! ✨",
+    'Your dedication is inspiring! ✨',
     "Code like nobody's watching! 👀",
     "You're a coding superstar! 🌟",
   ];
@@ -37,23 +37,25 @@ export class LeaderboardService {
     const completions = await this.getCompletions(leaderboard);
 
     if (completions.length > 0) {
-      const formattedCompletions = this.formatChallenge(leaderboard, completions)
+      const formattedCompletions = this.formatChallenge(leaderboard, completions);
       await this.notificationService.pushToSlack(formattedCompletions);
     }
 
     leaderboard.lastSync = new Date();
-    await this.kv.put("previous_state", JSON.stringify(leaderboard));
+    await this.kv.put('previous_state', JSON.stringify(leaderboard));
   }
 
-  private async getCompletions(leaderboard: Leaderboard): Promise<{ name: string; completedChallenges: number; first: boolean }[]> {
-    let previousState: Leaderboard = (await this.kv.get("previous_state", "json")) || {
+  private async getCompletions(
+    leaderboard: Leaderboard
+  ): Promise<{ name: string; completedChallenges: number; first: boolean }[]> {
+    let previousState: Leaderboard = (await this.kv.get('previous_state', 'json')) || {
       members: {},
-      event: "",
+      event: '',
       owner_id: 0,
       day1_ts: 0,
-      lastSync: new Date()
+      lastSync: new Date(),
     };
-    
+
     if (!previousState) previousState = leaderboard;
 
     const newCompletions = [];
@@ -61,11 +63,13 @@ export class LeaderboardService {
       const pastStateMember = previousState.members?.[memberId];
 
       if (!pastStateMember || member.stars > pastStateMember.stars) {
-        const completedChallenges = pastStateMember ? member.stars - pastStateMember.stars : member.stars;
+        const completedChallenges = pastStateMember
+          ? member.stars - pastStateMember.stars
+          : member.stars;
         newCompletions.push({
           name: member.name,
           completedChallenges,
-          first: !pastStateMember || (member.stars > 0 && pastStateMember.stars === 0)
+          first: !pastStateMember || (member.stars > 0 && pastStateMember.stars === 0),
         });
       }
     }
@@ -80,7 +84,7 @@ export class LeaderboardService {
     const response = await fetch(url, {
       headers: {
         Cookie: `session=${this.sessionToken}`,
-        "User-Agent": "github.com/patrickcash/aoc-slack-bot",
+        'User-Agent': 'github.com/patrickcash/aoc-slack-bot',
       },
     });
 
@@ -101,17 +105,20 @@ export class LeaderboardService {
     );
     header += sortedMembers.reduce((acc, member, index) => {
       const position = index + 1;
-      const emoji = index < 3 ? ["🎅", "🎄", "🎁"][index] : "🧝";
+      const emoji = index < 3 ? ['🎅', '🎄', '🎁'][index] : '🧝';
       const name = index < 3 ? `*${member.name}*` : member.name;
       return (
         acc +
-        `${position.toString().padStart(2)}. ${emoji} ${name} ${
-          member.local_score
-        } (${member.stars})\n`
+        `${position.toString().padStart(2)}. ${emoji} ${name} ${member.local_score} (${
+          member.stars
+        })\n`
       );
-    }, "");
+    }, '');
     const totalDays = 25;
-    const completedDays = sortedMembers.reduce((sum, member) => sum + Math.floor(member.stars / 2), 0);
+    const completedDays = sortedMembers.reduce(
+      (sum, member) => sum + Math.floor(member.stars / 2),
+      0
+    );
     const remainingDays = totalDays - completedDays;
 
     header += `\n${remainingDays} Day${remainingDays !== 1 ? 's' : ''} left\n`;
@@ -121,7 +128,14 @@ export class LeaderboardService {
     return header;
   }
 
-  private formatChallenge(leaderboard: Leaderboard, newCompletions: { name: string; completedChallenges: number; first: boolean }[]): string {
+  private formatChallenge(
+    leaderboard: Leaderboard,
+    newCompletions: {
+      name: string;
+      completedChallenges: number;
+      first: boolean;
+    }[]
+  ): string {
     let header = `*New Advent of Code Completions (Last 15 Minutes) - ${this.getTimeString()}*\n\n`;
     header = this.addMotivation(header);
 
@@ -141,13 +155,26 @@ export class LeaderboardService {
       return (
         acc +
         (member.first
-          ? `${position.toString().padStart(2)}. ${emoji} *${name}* joined and started their Advent of Code journey! 🎄🎉\n`
-          : `${position.toString().padStart(2)}. ${emoji} ${name} just completed ${completed} challenge${completed > 1 ? 's' : ''}!\n`)
+          ? `${position
+              .toString()
+              .padStart(
+                2
+              )}. ${emoji} *${name}* joined and started their Advent of Code journey! 🎄🎉\n`
+          : `${position
+              .toString()
+              .padStart(2)}. ${emoji} ${name} just completed ${completed} challenge${
+              completed > 1 ? 's' : ''
+            }!\n`)
       );
-    }, "");
+    }, '');
 
-    const randomMember = this.getRandomMember(leaderboard, newCompletions.map(member => member.name));
-    const challenge = randomMember ? `Will ${randomMember} be the next to complete a challenge? 🤔` : "Who's next? 🎄";
+    const randomMember = this.getRandomMember(
+      leaderboard,
+      newCompletions.map((member) => member.name)
+    );
+    const challenge = randomMember
+      ? `Will ${randomMember} be the next to complete a challenge? 🤔`
+      : "Who's next? 🎄";
 
     header += `\n_${challenge}_`;
 
@@ -159,26 +186,28 @@ export class LeaderboardService {
 
   // region UTILS
   private getDateString(): string {
-    return new Date().toLocaleString("en-US", {
-      timeZone: "America/Montreal",
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+    return new Date().toLocaleString('en-US', {
+      timeZone: 'America/Montreal',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   }
 
   private getTimeString(): string {
-    return new Date().toLocaleString("en-US", {
-      timeZone: "America/Montreal",
-      hour: "numeric",
-      minute: "numeric",
+    return new Date().toLocaleString('en-US', {
+      timeZone: 'America/Montreal',
+      hour: 'numeric',
+      minute: 'numeric',
       hour12: true,
     });
   }
 
   private getRandomMember(leaderboard: Leaderboard, excludedMembers: string[]): string | null {
-    const members = Object.values(leaderboard.members).filter(member => !excludedMembers.includes(member.name));
+    const members = Object.values(leaderboard.members).filter(
+      (member) => !excludedMembers.includes(member.name)
+    );
     if (members.length === 0) return null;
 
     return members[Math.floor(Math.random() * members.length)].name;
@@ -186,13 +215,12 @@ export class LeaderboardService {
 
   private addMotivation(header: string): string {
     return (
-      header +
-      `${this.arrMotivation[Math.floor(Math.random() * this.arrMotivation.length)]}\n`
+      header + `${this.arrMotivation[Math.floor(Math.random() * this.arrMotivation.length)]}\n`
     );
   }
 
   private randomEmoji(): string {
-    const emojis = ["🎅", "🎄", "🎁", "🧝", "⛄", "🦌", "🔔", "🕯️", "🍪", "🥛", "🎶"];
+    const emojis = ['🎅', '🎄', '🎁', '🧝', '⛄', '🦌', '🔔', '🕯️', '🍪', '🥛', '🎶'];
     return emojis[Math.floor(Math.random() * emojis.length)];
   }
   // endregion
