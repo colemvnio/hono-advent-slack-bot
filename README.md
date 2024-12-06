@@ -1,9 +1,12 @@
 ![Advent of Code Slack Banner](assets/banner.png)
 
-## ✨ Features
+## ✨ Roadmap
 
 - 📊 Daily leaderboard updates: Deployed
 - 🔔 Automatic notifications for completed challenges: Deployed
+- 👶 Congratulations for first completions: Deployed
+
+- 📦 Automatic releases: In progress
 
 ## 🚀 Getting Started
 
@@ -59,15 +62,17 @@ This project uses `.nvmrc` to specify the Node.js version. Make sure you have No
 
 ### Code Quality Tools
 
-- **Biome**: Modern formatter and linter
+- **Biome**: Modern formatter and linter built with Rust
   - Format code: `npm run format`
   - Check formatting: `npm run format:check`
   - Lint code: `npm run lint`
   - Fix linting issues: `npm run lint:fix`
+  - Documentation: https://biomejs.dev/formatter/
 
 - **Husky**: Automatically runs checks before commits
   - Pre-commit hooks ensure code quality
   - Runs formatting and linting checks
+  - Documentation: https://typicode.github.io/husky/
 
 ## 📝 Usage
 
