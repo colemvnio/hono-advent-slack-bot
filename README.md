@@ -49,6 +49,25 @@ _(!) Warning: No endpoints are exposed or created, thus only running with crons 
 - Cloudflare Workers
 - Hono Framework
 - Slack API
+- Biome (Formatting & Linting)
+- Husky (Git Hooks)
+
+## 🧑‍💻 Development
+
+### Node Version
+This project uses `.nvmrc` to specify the Node.js version. Make sure you have Node.js >=20 installed.
+
+### Code Quality Tools
+
+- **Biome**: Modern formatter and linter
+  - Format code: `npm run format`
+  - Check formatting: `npm run format:check`
+  - Lint code: `npm run lint`
+  - Fix linting issues: `npm run lint:fix`
+
+- **Husky**: Automatically runs checks before commits
+  - Pre-commit hooks ensure code quality
+  - Runs formatting and linting checks
 
 ## 📝 Usage
 
