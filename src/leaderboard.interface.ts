@@ -20,4 +20,5 @@ export interface Leaderboard {
     event: string;
     owner_id: number;
     day1_ts: number;
+    lastSync?: Date;
 }

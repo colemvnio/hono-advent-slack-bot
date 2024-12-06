@@ -1,41 +1,35 @@
 import { LeaderboardService } from './leaderboard.service';
 import { NotificationService } from './notification.service';
+import { KVNamespace } from '@cloudflare/workers-types';
 
-async function pushToSlack(message: string, webhookUrl: string): Promise<void> {
-  const response = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ text: message }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to post to Slack: ${response.statusText}`);
-  }
+export interface Env {
+  AOC_SESSION_TOKEN: string;
+  AOC_LEADERBOARD_ID: string;
+  SLACK_WEBHOOK_URL: string;
+  LEADERBOARD_STATE: KVNamespace;
 }
 
 export default {
-  async scheduled(event: ScheduledEvent, env: CloudflareBindings, ctx: ExecutionContext) {
+  async scheduled(event: ScheduledEvent, env: Env, _ctx: ExecutionContext) {
     console.log(`Executing scheduled event for cron: ${event.cron}`);
 
     try {
       const notificationService = new NotificationService(env.SLACK_WEBHOOK_URL);
 
-      
+      const leaderboardService = new LeaderboardService(
+        env.AOC_LEADERBOARD_ID,
+        env.AOC_SESSION_TOKEN,
+        env.LEADERBOARD_STATE,
+        notificationService
+      );
+
       switch (event.cron) {
         case "0 12 * * *":
-          const leaderboardService = new LeaderboardService(
-            env.AOC_LEADERBOARD_ID,
-            env.AOC_SESSION_TOKEN
-          );
-          const formattedLeaderboard = await leaderboardService.getAndFormatLeaderboard();
-          await notificationService.pushToSlack(formattedLeaderboard);
-
+          await leaderboardService.checkDailySummary();
           break;
 
-        case "*/15 * * * *": // Every 15 minutes
-          //
+        case "*/15 * * * *":
+          await leaderboardService.checkForNewCompletions();
           break;
 
         default:
