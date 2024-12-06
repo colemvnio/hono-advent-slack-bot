@@ -14,6 +14,12 @@ export default {
     console.log(`Executing scheduled event for cron: ${event.cron}`);
 
     try {
+      // Enforce to only execute during December if infra not paused
+      if (new Date().getMonth() !== 11) {
+        console.log('Skipping execution outside of December');
+        return;
+      }
+
       const notificationService = new NotificationService(env.SLACK_WEBHOOK_URL);
 
       const leaderboardService = new LeaderboardService(
