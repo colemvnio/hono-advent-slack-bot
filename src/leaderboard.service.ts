@@ -110,14 +110,19 @@ export class LeaderboardService {
         } (${member.stars})\n`
       );
     }, "");
+    const totalDays = 25;
+    const completedDays = sortedMembers.reduce((sum, member) => sum + Math.floor(member.stars / 2), 0);
+    const remainingDays = totalDays - completedDays;
+
+    header += `\n${remainingDays} Day${remainingDays !== 1 ? 's' : ''} left\n`;
 
     const closure = "Sent from Santa's sleigh! 🎅";
-    header += `\n\n_${closure}_`;
+    header += `\n_${closure}_`;
     return header;
   }
 
   private formatChallenge(leaderboard: Leaderboard, newCompletions: { name: string; completedChallenges: number; first: boolean }[]): string {
-    let header = `*New Advent of Code Completions - ${this.getTimeString()}*\n\n`;
+    let header = `*New Advent of Code Completions (Last 15 Minutes) - ${this.getTimeString()}*\n\n`;
     header = this.addMotivation(header);
 
     const sortedMembers = newCompletions.sort((a, b) => {
