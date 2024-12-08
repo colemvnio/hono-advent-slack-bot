@@ -1,20 +1,9 @@
 import { KVNamespace } from '@cloudflare/workers-types';
 import { Leaderboard } from './leaderboard.interface';
 import { NotificationService } from './notification.service';
+import { messages as arrMotivation } from './data/motivation-messages.json';
 
 export class LeaderboardService {
-  private readonly arrMotivation = [
-    'Happy Coding! 🎅',
-    'May your code be bug-free! 🎄',
-    'Debugging is just like unwrapping presents! 🎁',
-    'Keep calm and code on! ⌨️',
-    "You're making great progress! 🚀",
-    'Every line of code is a step forward! 👣',
-    "Embrace the challenge, you've got this! 💪",
-    'Your dedication is inspiring! ✨',
-    "Code like nobody's watching! 👀",
-    "You're a coding superstar! 🌟",
-  ];
 
   constructor(
     private readonly leaderboardId: string,
@@ -215,7 +204,7 @@ export class LeaderboardService {
 
   private addMotivation(header: string): string {
     return (
-      header + `${this.arrMotivation[Math.floor(Math.random() * this.arrMotivation.length)]}\n`
+      header + `${arrMotivation[Math.floor(Math.random() * arrMotivation.length)]}\n`
     );
   }
 
