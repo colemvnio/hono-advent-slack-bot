@@ -102,12 +102,10 @@ export class LeaderboardService {
         })\n`
       );
     }, '');
-    const totalDays = 25;
-    const completedDays = sortedMembers.reduce(
-      (sum, member) => sum + Math.floor(member.stars / 2),
-      0
-    );
-    const remainingDays = totalDays - completedDays;
+
+    const today = new Date();
+    const dayOfMonth = today.getDate();
+    const remainingDays = Math.max(25 - dayOfMonth, 0);
 
     header += `\n${remainingDays} Day${remainingDays !== 1 ? 's' : ''} left\n`;
 
