@@ -1,0 +1,26 @@
+name = "aoc-slack-notifier"
+type = "javascript"
+account_id = "aa90b10a3b1efc2017be226ce06fbce8"
+main = "./src/index.ts"
+workers_dev = true
+compatibility_date = "2024-11-06"
+
+[[kv_namespaces]]
+binding = "YOUR_NAMESPACE"
+id = "YOUR_NAMEPACE_ID"
+
+[env.production]
+vars = { AOC_SESSION_TOKEN = "<your_session_token_placeholder>", AOC_LEADERBOARD_ID = "<your_leaderboard_id_placeholder>", SLACK_WEBHOOK_URL = "<your_slack_webhook_placeholder>" }
+
+[env.dev]
+vars = { AOC_SESSION_TOKEN = "<local_session_token>", AOC_LEADERBOARD_ID = "<local_leaderboard_id>", SLACK_WEBHOOK_URL = "<local_slack_webhook>" }
+
+[[env.dev.kv_namespaces]]
+binding = "YOUR_NAMESPACE"
+id = "YOUR_NAMEPACE_ID"
+
+[triggers]
+crons = ["0 12 * * *", "*/15 * * * *"]
+
+[observability.logs]
+enabled = true

@@ -4,7 +4,6 @@ import { NotificationService } from './notification.service';
 import { messages as arrMotivation } from './data/motivation-messages.json';
 
 export class LeaderboardService {
-
   constructor(
     private readonly leaderboardId: string,
     private readonly sessionToken: string,
@@ -203,9 +202,7 @@ export class LeaderboardService {
   }
 
   private addMotivation(header: string): string {
-    return (
-      header + `${arrMotivation[Math.floor(Math.random() * arrMotivation.length)]}\n`
-    );
+    return header + `${arrMotivation[Math.floor(Math.random() * arrMotivation.length)]}\n`;
   }
 
   private randomEmoji(): string {
